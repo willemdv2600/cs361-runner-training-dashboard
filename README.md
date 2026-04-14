@@ -1,2 +1,2 @@
-# cs361-runner-training-dashboard
-CS 361 Milestone 1 main program
+# Runner Training Insights Dashboard
+This is my CS361 Milestone 1 project.
