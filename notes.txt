@@ -1,0 +1,1 @@
+Sprint 1 will focus on entering training data, viewing summaries, and checking for anomalies.
