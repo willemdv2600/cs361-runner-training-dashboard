@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Runner Training Insights Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #2563eb;
+      --accent2: #0f766e;
+      --danger: #b91c1c;
+      --dangerBg: #fef2f2;
+      --warnBg: #fff7ed;
+      --okBg: #ecfdf5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 14px 20px;
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    nav button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #374151;
+      color: white;
+    }
+
+    nav button.active {
+      background: var(--accent);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 16px 32px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .card h2, .card h3 {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .benefit {
+      background: #eff6ff;
+      border-left: 5px solid var(--accent);
+    }
+
+    .cost {
+      background: var(--warnBg);
+      border-left: 5px solid #f59e0b;
+    }
+
+    .success {
+      background: var(--okBg);
+      border-left: 5px solid #10b981;
+    }
+
+    .danger {
+      background: var(--dangerBg);
+      border-left: 5px solid var(--danger);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .actions button, .actions a, .tab-btn, .form-btn {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: white;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .secondary {
+      background: var(--accent2);
+      color: white;
+      border-color: var(--accent2);
+    }
+
+    .danger-btn {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .small {
+      font-size: 0.92rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+    }
+
+    .details-box {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafafa;
+    }
+
+    .stat-box {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .toast {
+      display: none;
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+      margin-bottom: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #111827;
+      color: white;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .toast button {
+      background: white;
+      color: #111827;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .help-steps li {
+      margin-bottom: 8px;
+    }
+
+    .keyboard-note {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+    }
+
+    .unit-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="app-title">Runner Training Insights Dashboard</h1>
+    <nav aria-label="Main navigation">
+      <button class="nav-btn active" data-view="homeView">Home</button>
+      <button class="nav-btn" data-view="logView">Log Workout</button>
+      <button class="nav-btn" data-view="historyView">History</button>
+      <button class="nav-btn" data-view="summaryView">Summary</button>
+      <button class="nav-btn" data-view="helpView">Help</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <span id="toastText">Workout saved.</span>
+      <button id="undoBtn" type="button">Undo</button>
+    </div>
+
+    <!-- HOME -->
+    <section id="homeView" class="view active" aria-labelledby="homeHeading">
+      <div class="grid grid-2">
+        <div class="card benefit">
+          <h2 id="homeHeading">Train consistently. See the story in your workouts.</h2>
+          <p>
+            Log a run quickly, review recent training, and spot basic patterns without needing a spreadsheet.
+          </p>
+          <div class="actions">
+            <button class="primary jump-btn" data-view="logView">Log Workout</button>
+            <button class="jump-btn" data-view="historyView">View History</button>
+            <button class="jump-btn" data-view="summaryView">Open Summary</button>
+          </div>
+        </div>
+
+        <div class="card cost">
+          <h3>Before you start</h3>
+          <p class="small">
+            Sprint 1 keeps workout data only in this browser on this device.
+            Clearing browser data removes saved workouts.
+            No location, GPS, or account sign-up is required.
+          </p>
+          <p class="small">
+            This explains the cost and limits before the user commits to using the app.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-3" style="margin-top:16px;">
+        <div class="card stat-box">
+          <div class="muted">Recent total</div>
+          <div id="homeRecentTotal" class="stat-value">0.0 mi</div>
+          <div class="small">Last 7 days</div>
+        </div>
+        <div class="card stat-box">
+          <div class="muted">Workouts</div>
+          <div id="homeWorkoutCount" class="stat-value">0</div>
+          <div class="small">Saved sessions</div>
+        </div>
+        <div class="card stat-box">
+          <div class="muted">Average</div>
+          <div id="homeAverage" class="stat-value">0.0 mi</div>
+          <div class="small">Per workout</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:16px;">
+        <div class="card">
+          <h3>Recent activity</h3>
+          <div id="homeRecentActivity" class="small muted">No workouts saved yet.</div>
+          <p class="small muted" style="margin-top:12px;">
+            Use History for full details and undo after saving.
+          </p>
+        </div>
+
+        <div class="card success">
+          <h3>Getting started in 3 steps</h3>
+          <ol class="help-steps">
+            <li>Choose “Log Workout.”</li>
+            <li>Save date, type, distance, and duration.</li>
+            <li>Open History or Summary to review results.</li>
+          </ol>
+          <p class="small">Need a reminder later? Open Help from the top navigation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section id="logView" class="view" aria-labelledby="logHeading">
+      <div class="card">
+        <h2 id="logHeading">Log Workout</h2>
+        <p class="small">
+          Choose the method that fits you best. Guided Form is the default.
+          Quick Entry is a backup path if you already know what values you want to type.
+        </p>
+
+        <div class="tabs">
+          <button id="guidedTabBtn" class="tab-btn active" type="button">Guided Form</button>
+          <button id="quickTabBtn" class="tab-btn" type="button">Quick Entry</button>
+        </div>
+
+        <div id="guidedFormBox">
+          <form id="guidedForm">
+            <div class="row">
+              <div>
+                <label for="date">Date</label>
+                <input id="date" type="date" />
+              </div>
+              <div>
+                <label for="type">Workout type</label>
+                <select id="type">
+                  <option value="">Select type</option>
+                  <option>Easy Run</option>
+                  <option>Long Run</option>
+                  <option>Tempo</option>
+                  <option>Intervals</option>
+                  <option>Recovery</option>
+                  <option>Race</option>
+                  <option>Cross Training</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="distance">Distance</label>
+                <input id="distance" type="number" step="0.1" min="0" />
+              </div>
+              <div>
+                <label for="duration">Duration (for example 52:10 or 1:32:00)</label>
+                <input id="duration" type="text" placeholder="52:10" />
+              </div>
+            </div>
+
+            <div>
+              <span class="small" style="font-weight:700;">Distance unit</span>
+              <div class="unit-group">
+                <label><input type="radio" name="distanceUnit" value="Miles" checked /> Miles</label>
+                <label><input type="radio" name="distanceUnit" value="Kilometers" /> Kilometers</label>
+              </div>
+            </div>
+
+            <div>
+              <label for="notes">Notes</label>
+              <textarea id="notes" placeholder="Optional notes about how the workout felt"></textarea>
+            </div>
+
+            <div class="card" style="background:#f9fafb;">
+              <h3>Review before saving</h3>
+              <ul class="small">
+                <li>Required fields: date, workout type, distance, duration</li>
+                <li>Distance defaults to miles unless you switch units</li>
+                <li>Cancel goes back without saving</li>
+              </ul>
+              <div class="keyboard-note">
+                Users can move through fields in order with Tab. Labels stay visible, so the meaning of each field is always clear.
+              </div>
+            </div>
+
+            <div id="guidedError" class="error" aria-live="polite"></div>
+
+            <div class="actions">
+              <button class="form-btn" id="cancelGuidedBtn" type="button">Cancel</button>
+              <button class="primary" type="submit">Save Workout</button>
+              <button class="form-btn" id="clearGuidedBtn" type="button">Clear fields</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="quickFormBox" style="display:none;">
+          <form id="quickForm">
+            <div class="row">
+              <div>
+                <label for="quickDate">Date</label>
+                <input id="quickDate" type="date" />
+              </div>
+              <div>
+                <label for="quickDistance">Distance</label>
+                <input id="quickDistance" type="number" min="0" step="0.1" />
+              </div>
+              <div>
+                <label for="quickDuration">Duration</label>
+                <input id="quickDuration" type="text" placeholder="45:00" />
+              </div>
+            </div>
+
+            <div>
+              <span class="small" style="font-weight:700;">Workout type</span>
+              <div class="chip-row" id="quickTypeChips">
+                <button type="button" class="chip active" data-type="Easy Run">Easy Run</button>
+                <button type="button" class="chip" data-type="Long Run">Long Run</button>
+                <button type="button" class="chip" data-type="Tempo">Tempo</button>
+                <button type="button" class="chip" data-type="Intervals">Intervals</button>
+                <button type="button" class="chip" data-type="Recovery">Recovery</button>
+              </div>
+            </div>
+
+            <div>
+              <span class="small" style="font-weight:700;">Distance unit</span>
+              <div class="unit-group">
+                <label><input type="radio" name="quickDistanceUnit" value="Miles" checked /> Miles</label>
+                <label><input type="radio" name="quickDistanceUnit" value="Kilometers" /> Kilometers</label>
+              </div>
+            </div>
+
+            <p class="small muted">
+              Quick Entry is a backup approach for users who want the fastest possible path.
+            </p>
+
+            <div id="quickError" class="error" aria-live="polite"></div>
+
+            <div class="actions">
+              <button class="form-btn" id="cancelQuickBtn" type="button">Cancel</button>
+              <button class="secondary" type="submit">Save Quick Entry</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="historyView" class="view" aria-labelledby="historyHeading">
+      <div class="card">
+        <h2 id="historyHeading">Workout History</h2>
+        <p class="small">
+          History starts with a compact list so users can scan quickly, then open more detail only when they want it.
+        </p>
+
+        <div class="actions">
+          <label for="typeFilter">Filter by type</label>
+          <select id="typeFilter" style="max-width:220px;">
+            <option value="All">All</option>
+            <option>Easy Run</option>
+            <option>Long Run</option>
+            <option>Tempo</option>
+            <option>Intervals</option>
+            <option>Recovery</option>
+            <option>Race</option>
+            <option>Cross Training</option>
+          </select>
+        </div>
+
+        <div id="historyTableWrap"></div>
+        <div id="historyDetails" class="details-box" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section id="summaryView" class="view" aria-labelledby="summaryHeading">
+      <div class="card">
+        <h2 id="summaryHeading">Summary View</h2>
+        <p class="small">
+          Summary updates automatically after a new workout is saved.
+        </p>
+
+        <div class="grid grid-3">
+          <div class="stat-box">
+            <div class="muted">Total distance</div>
+            <div id="totalDistance" class="stat-value">0.0 mi</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Total workouts</div>
+            <div id="totalWorkouts" class="stat-value">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Average distance</div>
+            <div id="avgDistance" class="stat-value">0.0 mi</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Average duration</div>
+            <div id="avgDuration" class="stat-value">0 min</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Longest workout</div>
+            <div id="longestWorkout" class="stat-value">0.0 mi</div>
+          </div>
+          <div class="stat-box">
+            <div class="muted">Most common type</div>
+            <div id="commonType" class="stat-value">-</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <h3>Weekly distance chart</h3>
+          <canvas id="summaryChart" width="900" height="220" aria-label="Weekly distance chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- HELP -->
+    <section id="helpView" class="view" aria-labelledby="helpHeading">
+      <div class="card">
+        <h2 id="helpHeading">Help Page</h2>
+        <ol class="help-steps">
+          <li>Open <strong>Log Workout</strong>.</li>
+          <li>Choose <strong>Guided Form</strong> or <strong>Quick Entry</strong>.</li>
+          <li>Enter date, type, distance, and duration.</li>
+          <li>Save the workout.</li>
+          <li>Open <strong>History</strong> to review saved entries.</li>
+          <li>Open <strong>Summary</strong> to review totals and averages.</li>
+        </ol>
+
+        <div class="card success">
+          <h3>FAQ</h3>
+          <p><strong>Where is my data stored?</strong> In this browser on this device.</p>
+          <p><strong>Can I undo a save?</strong> Yes. An Undo toast appears right after saving.</p>
+          <p><strong>Can I remove a workout?</strong> Yes, but the app will ask you to confirm first.</p>
+        </div>
+
+        <div class="keyboard-note">
+          Keyboard note: all major actions can be reached by tabbing through buttons, links, fields, and controls.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- DELETE MODAL -->
+  <div id="deleteModalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="deleteHeading">
+    <div class="modal">
+      <h2 id="deleteHeading">Delete this workout?</h2>
+      <p id="deleteText">
+        You are about to remove this workout from your saved history.
+      </p>
+      <div class="danger card" style="padding:12px; margin-top:10px;">
+        This action cannot be undone after you confirm delete. If you might still need the record, choose Cancel and review it first.
+      </div>
+      <div class="actions" style="margin-top:16px;">
+        <button id="cancelDeleteBtn" type="button">Cancel</button>
+        <button id="confirmDeleteBtn" class="danger-btn" type="button">Delete workout</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "runner_training_dashboard_workouts_v1";
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const views = document.querySelectorAll(".view");
+
+    const homeRecentTotal = document.getElementById("homeRecentTotal");
+    const homeWorkoutCount = document.getElementById("homeWorkoutCount");
+    const homeAverage = document.getElementById("homeAverage");
+    const homeRecentActivity = document.getElementById("homeRecentActivity");
+
+    const guidedForm = document.getElementById("guidedForm");
+    const quickForm = document.getElementById("quickForm");
+    const guidedError = document.getElementById("guidedError");
+    const quickError = document.getElementById("quickError");
+
+    const guidedTabBtn = document.getElementById("guidedTabBtn");
+    const quickTabBtn = document.getElementById("quickTabBtn");
+    const guidedFormBox = document.getElementById("guidedFormBox");
+    const quickFormBox = document.getElementById("quickFormBox");
+
+    const historyTableWrap = document.getElementById("historyTableWrap");
+    const historyDetails = document.getElementById("historyDetails");
+    const typeFilter = document.getElementById("typeFilter");
+
+    const totalDistance = document.getElementById("totalDistance");
+    const totalWorkouts = document.getElementById("totalWorkouts");
+    const avgDistance = document.getElementById("avgDistance");
+    const avgDuration = document.getElementById("avgDuration");
+    const longestWorkout = document.getElementById("longestWorkout");
+    const commonType = document.getElementById("commonType");
+
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toastText");
+    const undoBtn = document.getElementById("undoBtn");
+
+    const deleteModalBackdrop = document.getElementById("deleteModalBackdrop");
+    const deleteText = document.getElementById("deleteText");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+
+    const chart = document.getElementById("summaryChart");
+    const chartCtx = chart.getContext("2d");
+
+    let workouts = loadWorkouts();
+    let lastSavedWorkout = null;
+    let deleteId = null;
+    let selectedHistoryId = null;
+    let quickType = "Easy Run";
+
+    function loadWorkouts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveWorkouts() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(workouts));
+    }
+
+    function showView(viewId) {
+      views.forEach(v => v.classList.remove("active"));
+      navButtons.forEach(b => b.classList.remove("active"));
+      document.getElementById(viewId).classList.add("active");
+
+      document.querySelectorAll("[data-view]").forEach(btn => {
+        if (btn.classList.contains("nav-btn") && btn.dataset.view === viewId) {
+          btn.classList.add("active");
+        }
+      });
+
+      if (viewId === "historyView") renderHistory();
+      if (viewId === "summaryView") renderSummary();
+      if (viewId === "homeView") renderHome();
+    }
+
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => showView(btn.dataset.view));
+    });
+
+    document.querySelectorAll(".jump-btn").forEach(btn => {
+      btn.addEventListener("click", () => showView(btn.dataset.view));
+    });
+
+    guidedTabBtn.addEventListener("click", () => {
+      guidedTabBtn.classList.add("active");
+      quickTabBtn.classList.remove("active");
+      guidedFormBox.style.display = "block";
+      quickFormBox.style.display = "none";
+    });
+
+    quickTabBtn.addEventListener("click", () => {
+      quickTabBtn.classList.add("active");
+      guidedTabBtn.classList.remove("active");
+      quickFormBox.style.display = "block";
+      guidedFormBox.style.display = "none";
+    });
+
+    function getSelectedUnit(name) {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      return el ? el.value : "Miles";
+    }
+
+    function toMiles(distance, unit) {
+      return unit === "Kilometers" ? distance * 0.621371 : distance;
+    }
+
+    function formatMiles(num) {
+      return `${num.toFixed(1)} mi`;
+    }
+
+    function parseDurationToMinutes(text) {
+      const parts = text.trim().split(":").map(Number);
+      if (parts.some(Number.isNaN)) return null;
+
+      if (parts.length === 2) {
+        const [m, s] = parts;
+        return m + (s / 60);
+      }
+      if (parts.length === 3) {
+        const [h, m, s] = parts;
+        return (h * 60) + m + (s / 60);
+      }
+      return null;
+    }
+
+    function formatMinutes(mins) {
+      if (!mins || mins < 0) return "0 min";
+      const total = Math.round(mins);
+      const h = Math.floor(total / 60);
+      const m = total % 60;
+      return h > 0 ? `${h}h ${m}m` : `${m} min`;
+    }
+
+    function createWorkout(data) {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        date: data.date,
+        type: data.type,
+        distance: Number(data.distance),
+        unit: data.unit,
+        distanceMiles: toMiles(Number(data.distance), data.unit),
+        duration: data.duration,
+        durationMinutes: parseDurationToMinutes(data.duration),
+        notes: data.notes || ""
+      };
+    }
+
+    function validateWorkout(data) {
+      if (!data.date || !data.type || !data.distance || !data.duration) {
+        return "Please complete date, workout type, distance, and duration.";
+      }
+      if (Number(data.distance) <= 0) {
+        return "Distance must be greater than zero.";
+      }
+      if (parseDurationToMinutes(data.duration) === null) {
+        return "Duration must look like 52:10 or 1:32:00.";
+      }
+      return "";
+    }
+
+    function addWorkout(workout) {
+      workouts.push(workout);
+      workouts.sort((a, b) => b.date.localeCompare(a.date));
+      saveWorkouts();
+      lastSavedWorkout = workout;
+      renderAll();
+      showUndoToast(`Saved ${workout.type} on ${workout.date}.`);
+    }
+
+    function removeWorkoutById(id) {
+      workouts = workouts.filter(w => w.id !== id);
+      saveWorkouts();
+      renderAll();
+    }
+
+    function showUndoToast(message) {
+      toastText.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 5000);
+    }
+
+    undoBtn.addEventListener("click", () => {
+      if (!lastSavedWorkout) return;
+      removeWorkoutById(lastSavedWorkout.id);
+      toast.classList.remove("show");
+      lastSavedWorkout = null;
+    });
+
+    guidedForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      guidedError.textContent = "";
+
+      const data = {
+        date: document.getElementById("date").value,
+        type: document.getElementById("type").value,
+        distance: document.getElementById("distance").value,
+        duration: document.getElementById("duration").value.trim(),
+        unit: getSelectedUnit("distanceUnit"),
+        notes: document.getElementById("notes").value.trim()
+      };
+
+      const error = validateWorkout(data);
+      if (error) {
+        guidedError.textContent = error;
+        return;
+      }
+
+      addWorkout(createWorkout(data));
+      guidedForm.reset();
+      document.querySelector('input[name="distanceUnit"][value="Miles"]').checked = true;
+      guidedError.textContent = "";
+    });
+
+    quickForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      quickError.textContent = "";
+
+      const data = {
+        date: document.getElementById("quickDate").value,
+        type: quickType,
+        distance: document.getElementById("quickDistance").value,
+        duration: document.getElementById("quickDuration").value.trim(),
+        unit: getSelectedUnit("quickDistanceUnit"),
+        notes: ""
+      };
+
+      const error = validateWorkout(data);
+      if (error) {
+        quickError.textContent = error;
+        return;
+      }
+
+      addWorkout(createWorkout(data));
+      quickForm.reset();
+      document.querySelector('input[name="quickDistanceUnit"][value="Miles"]').checked = true;
+      setQuickType("Easy Run");
+      quickError.textContent = "";
+    });
+
+    function setQuickType(type) {
+      quickType = type;
+      document.querySelectorAll("#quickTypeChips .chip").forEach(chip => {
+        chip.classList.toggle("active", chip.dataset.type === type);
+      });
+    }
+
+    document.querySelectorAll("#quickTypeChips .chip").forEach(chip => {
+      chip.addEventListener("click", () => setQuickType(chip.dataset.type));
+    });
+
+    document.getElementById("clearGuidedBtn").addEventListener("click", () => {
+      guidedForm.reset();
+      document.querySelector('input[name="distanceUnit"][value="Miles"]').checked = true;
+      guidedError.textContent = "";
+    });
+
+    document.getElementById("cancelGuidedBtn").addEventListener("click", () => {
+      showView("homeView");
+    });
+
+    document.getElementById("cancelQuickBtn").addEventListener("click", () => {
+      showView("homeView");
+    });
+
+    function renderHome() {
+      const recent = getRecent7DayStats();
+      homeRecentTotal.textContent = formatMiles(recent.totalMiles);
+      homeWorkoutCount.textContent = String(workouts.length);
+      homeAverage.textContent = workouts.length
+        ? formatMiles(totalMiles(workouts) / workouts.length)
+        : "0.0 mi";
+
+      if (workouts.length === 0) {
+        homeRecentActivity.innerHTML = `<span class="muted">No workouts saved yet.</span>`;
+      } else {
+        const rows = workouts.slice(0, 3).map(w =>
+          `• ${w.date} &nbsp; ${w.type} &nbsp; ${w.distance} ${w.unit === "Miles" ? "mi" : "km"} &nbsp; ${w.duration}`
+        );
+        homeRecentActivity.innerHTML = rows.join("<br>");
+      }
+    }
+
+    function totalMiles(items) {
+      return items.reduce((sum, w) => sum + w.distanceMiles, 0);
+    }
+
+    function getRecent7DayStats() {
+      const now = new Date();
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 6);
+
+      const recentItems = workouts.filter(w => {
+        const d = new Date(w.date + "T00:00:00");
+        return d >= sevenDaysAgo && d <= now;
+      });
+
+      return {
+        totalMiles: totalMiles(recentItems),
+        count: recentItems.length
+      };
+    }
+
+    function renderHistory() {
+      const filter = typeFilter.value;
+      const filtered = filter === "All" ? workouts : workouts.filter(w => w.type === filter);
+
+      if (filtered.length === 0) {
+        historyTableWrap.innerHTML = `<p class="muted">No workouts match the current filter.</p>`;
+        historyDetails.style.display = "none";
+        return;
+      }
+
+      const rows = filtered.map(w => `
+        <tr>
+          <td>${w.date}</td>
+          <td>${w.type}</td>
+          <td>${w.distance} ${w.unit === "Miles" ? "mi" : "km"}</td>
+          <td>${w.duration}</td>
+          <td>
+            <button type="button" onclick="window.showDetails('${w.id}')">Details</button>
+            <button type="button" onclick="window.openDeleteModal('${w.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join("");
+
+      historyTableWrap.innerHTML = `
+        <table aria-label="Workout history table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Distance</th>
+              <th>Duration</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      if (!selectedHistoryId || !filtered.find(w => w.id === selectedHistoryId)) {
+        selectedHistoryId = filtered[0].id;
+      }
+      showDetails(selectedHistoryId);
+    }
+
+    window.showDetails = function(id) {
+      selectedHistoryId = id;
+      const w = workouts.find(x => x.id === id);
+      if (!w) return;
+
+      historyDetails.style.display = "block";
+      historyDetails.innerHTML = `
+        <h3>Selected workout details</h3>
+        <p><strong>Date:</strong> ${w.date}</p>
+        <p><strong>Type:</strong> ${w.type}</p>
+        <p><strong>Distance:</strong> ${w.distance} ${w.unit}</p>
+        <p><strong>Duration:</strong> ${w.duration}</p>
+        <p><strong>Notes:</strong> ${w.notes ? w.notes : "No notes saved."}</p>
+      `;
+    };
+
+    window.openDeleteModal = function(id) {
+      deleteId = id;
+      const w = workouts.find(x => x.id === id);
+      if (!w) return;
+      deleteText.textContent = `You are about to remove the ${w.date} ${w.type} workout from your saved history.`;
+      deleteModalBackdrop.classList.add("show");
+    };
+
+    cancelDeleteBtn.addEventListener("click", () => {
+      deleteModalBackdrop.classList.remove("show");
+      deleteId = null;
+    });
+
+    confirmDeleteBtn.addEventListener("click", () => {
+      if (deleteId) {
+        removeWorkoutById(deleteId);
+      }
+      deleteModalBackdrop.classList.remove("show");
+      deleteId = null;
+    });
+
+    typeFilter.addEventListener("change", renderHistory);
+
+    function renderSummary() {
+      const miles = totalMiles(workouts);
+      totalDistance.textContent = formatMiles(miles);
+      totalWorkouts.textContent = String(workouts.length);
+      avgDistance.textContent = workouts.length ? formatMiles(miles / workouts.length) : "0.0 mi";
+
+      const avgDur = workouts.length
+        ? workouts.reduce((sum, w) => sum + (w.durationMinutes || 0), 0) / workouts.length
+        : 0;
+      avgDuration.textContent = formatMinutes(avgDur);
+
+      const longest = workouts.length
+        ? workouts.reduce((max, w) => w.distanceMiles > max.distanceMiles ? w : max, workouts[0])
+        : null;
+      longestWorkout.textContent = longest ? formatMiles(longest.distanceMiles) : "0.0 mi";
+
+      const typeCounts = {};
+      workouts.forEach(w => {
+        typeCounts[w.type] = (typeCounts[w.type] || 0) + 1;
+      });
+      let common = "-";
+      let maxCount = 0;
+      for (const type in typeCounts) {
+        if (typeCounts[type] > maxCount) {
+          maxCount = typeCounts[type];
+          common = type;
+        }
+      }
+      commonType.textContent = common;
+
+      drawChart();
+    }
+
+    function drawChart() {
+      chartCtx.clearRect(0, 0, chart.width, chart.height);
+
+      const labels = [];
+      const values = [];
+      const now = new Date();
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(now.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        labels.push(dateStr.slice(5));
+        const dailyMiles = workouts
+          .filter(w => w.date === dateStr)
+          .reduce((sum, w) => sum + w.distanceMiles, 0);
+        values.push(dailyMiles);
+      }
+
+      const maxValue = Math.max(1, ...values);
+      const left = 50;
+      const bottom = 180;
+      const width = 800;
+      const height = 130;
+      const barWidth = 80;
+
+      chartCtx.strokeStyle = "#6b7280";
+      chartCtx.beginPath();
+      chartCtx.moveTo(left, 25);
+      chartCtx.lineTo(left, bottom);
+      chartCtx.lineTo(left + width, bottom);
+      chartCtx.stroke();
+
+      chartCtx.fillStyle = "#111827";
+      chartCtx.font = "12px Arial";
+      chartCtx.fillText("Miles", 10, 20);
+
+      values.forEach((v, i) => {
+        const x = left + 20 + i * 105;
+        const h = (v / maxValue) * height;
+        const y = bottom - h;
+        chartCtx.fillStyle = "#2563eb";
+        chartCtx.fillRect(x, y, barWidth, h);
+
+        chartCtx.fillStyle = "#111827";
+        chartCtx.fillText(labels[i], x + 20, bottom + 18);
+        chartCtx.fillText(v.toFixed(1), x + 20, y - 6);
+      });
+    }
+
+    function renderAll() {
+      renderHome();
+      renderHistory();
+      renderSummary();
+    }
+
+    function setTodayDefaults() {
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById("date").value = today;
+      document.getElementById("quickDate").value = today;
+    }
+
+    renderAll();
+    setTodayDefaults();
+  </script>
+</body>
+</html>
